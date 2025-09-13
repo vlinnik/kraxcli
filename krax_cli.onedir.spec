@@ -1,0 +1,50 @@
+# -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_all
+
+upydev_dat,upydev_bin,upydev_imports = collect_all("upydev")
+upydevice_dat,upydevice_bin,upydevice_imports = collect_all("upydevice")
+mpremote_dat,mpremote_bin,mpremote_imports = collect_all("mpremote")
+serial_dat,serial_bin,serial_imports = collect_all("serial")
+
+a = Analysis(
+    ['src/krax_cli/__main__.py'],
+    pathex=[],
+    binaries=serial_bin+mpremote_bin+upydev_bin+upydevice_bin+[('src/krax_cli/_upydev.py','.')],
+    datas=serial_dat+mpremote_dat+upydev_dat+upydevice_dat,
+    hiddenimports=serial_imports+mpremote_imports+upydev_imports+upydevice_imports+['packaging','packaging.version','argcomplete'],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=['freetype.__pyinstaller'],
+    noarchive=False,
+    optimize=0,
+)
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='krax_cli',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=True,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='krax_cli',
+)
