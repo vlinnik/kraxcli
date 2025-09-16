@@ -8,9 +8,9 @@ mpremote_dat,mpremote_bin,mpremote_imports = collect_all("mpremote")
 serial_dat,serial_bin,serial_imports = collect_all("serial")
 
 a = Analysis(
-    ['src/krax_cli/__main__.py'],
+    ['src/kraxcli/__main__.py'],
     pathex=[],
-    binaries=serial_bin+mpremote_bin+upydev_bin+upydevice_bin+[('src/krax_cli/_upydev.py','.')],
+    binaries=serial_bin+mpremote_bin+upydev_bin+upydevice_bin+[('src/kraxcli/_upydev.py','.')],
     datas=serial_dat+mpremote_dat+upydev_dat+upydevice_dat,
     hiddenimports=serial_imports+mpremote_imports+upydev_imports+upydevice_imports+['packaging','packaging.version','argcomplete'],
     hookspath=[],
@@ -28,7 +28,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='krax_cli',
+    name='kraxcli',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

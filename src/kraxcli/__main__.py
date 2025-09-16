@@ -4,12 +4,20 @@ import argparse
 from serial.tools import list_ports
 from multiprocessing import Process
 
+try:
+    from .tools import tool_upydev
+except ImportError:
+    from kraxcli.tools import tool_upydev
+
 def detect_type(args):
-    if args.host is not None:
-        fork_fun(tool_upydev,['config','-t',args.host,'-p',args.password])
-        return 'host'
-    elif args.port is not None:
-        fork_fun(tool_upydev,['config','-t',args.port,'-p',args.password])
+    try:
+        if args.host is not None:
+            fork_fun(tool_upydev,['config','-t',args.host,'-p',args.password])
+            return 'host'
+        elif args.port is not None:
+            fork_fun(tool_upydev,['config','-t',args.port,'-p',args.password])
+    except Exception as e:
+        print(f'Unexpected exception:{e}')
     return 'serial'
 
 def serials(args):
@@ -20,18 +28,6 @@ def serials(args):
 def tool_mpremote(args,*_,**kwargs):
     sys.argv = ['mpremote']+args
     from mpremote import __main__
-
-def tool_upydev(args,*_,**kwargs):
-    sys.argv = ['upydev']+args
-    # print(sys.argv)
-    try:
-        if getattr(sys, 'frozen', False):
-            import _upydev
-        else:
-            from . import _upydev
-    except Exception as e:
-        print(f'Ошибка: {e}')
-    return
 
 def fork_fun(fn,args):
     p = Process(target=fn,args=(args,))
@@ -44,6 +40,15 @@ def tool_telnet(*_,host:str,**kwargs):
     except Exception as e:
         print(f'Ошибка: {e}')
     return result.stdout
+
+def tool_config(*_,port=None,host=None,password:str=None,**kwargs):
+    try:
+        if host is not None:
+            tool_upydev(['config','-t',host,'-p',password])
+        elif port is not None:
+            tool_upydev(['config','-t',port,'-p','115200'])
+    except Exception as e:
+        print(f'Unexpected exception:{e}')
 
 routes = { 
             'stop' :{ 
@@ -70,7 +75,15 @@ actions = {
             'put' : (tool_upydev,['dsync','-fg','-i',excluded_files]),
             'get' : (tool_upydev,['dsync','-d','-fg','-i',excluded_files]),
             'check' : (tool_upydev,['cat','project.py']),
+            'config' : (tool_config,[])
         }
+
+import os
+
+def ensure_home_env():
+    if 'HOME' not in os.environ:
+        current_dir = os.getcwd()
+        os.environ['HOME'] = current_dir
 
 def main():
     parser = argparse.ArgumentParser(prog='kraxcli',description="Обертка для pyserial-ports/mpremote/upydev",add_help=True)
@@ -90,7 +103,8 @@ def main():
     action_get = subparsers.add_parser('get', help='Скачать проект из устройством')
     action_put = subparsers.add_parser('put', help='Закачать проект в устройство')
     action_check = subparsers.add_parser('check', help='Проверить подключение к устройству')
-    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check]:
+    action_config= subparsers.add_parser('config', help='Настроить утилиту upydev')
+    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config]:
         x.add_argument(
             'extra_args',
             nargs=argparse.REMAINDER,
@@ -101,7 +115,8 @@ def main():
     
     args,unknown = parser.parse_known_args()
     # настройка upydev
-    
+    ensure_home_env()
+
     if args.action in routes:
         device_type = detect_type(args)
         route = routes[args.action][device_type]
@@ -115,4 +130,7 @@ def main():
             action[0]( action[1] + unknown + args.extra_args,port=args.port,host=args.host )
 
 if __name__ == "__main__":
-    main()
+    args = [arg for arg in sys.argv if not arg.startswith("parent_pid=")]
+    if len(args)==len(sys.argv):
+        os.system("")
+        main()
