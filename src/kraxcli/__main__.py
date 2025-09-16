@@ -39,7 +39,10 @@ def fork_fun(fn,args):
     p.join()
     
 def tool_telnet(*_,host:str,**kwargs):
-    result = subprocess.run(['telnet',host],capture_output=False, text=True, check=True)
+    try:
+        result = subprocess.run(['telnet',host],capture_output=False, text=True, check=True)
+    except Exception as e:
+        print(f'Ошибка: {e}')
     return result.stdout
 
 routes = { 
@@ -56,15 +59,17 @@ routes = {
                         'serial': (tool_mpremote, ['reset'])
                     }
             }
-excluded_files = '"*__pycache__*" "*/persist.*"'
+excluded_files = '"*__pycache__*" "*/persist.*" "*/upydev_.*"'
 actions = {
             'serials': serials,
             'upydev' : tool_upydev,
             'mpremote': tool_mpremote,
             'run' : (tool_upydev,['run']),
+            'compare' : (tool_upydev,['dsync','-fg','-n','-i',excluded_files]),
             'diff' : (tool_upydev,['dsync','-fg','-n','-p','-i',excluded_files]),
             'put' : (tool_upydev,['dsync','-fg','-i',excluded_files]),
             'get' : (tool_upydev,['dsync','-d','-fg','-i',excluded_files]),
+            'check' : (tool_upydev,['cat','project.py']),
         }
 
 def main():
@@ -80,10 +85,12 @@ def main():
     action_repl = subparsers.add_parser('repl', help='Запустить REPL')
     action_run = subparsers.add_parser('run', help='Запустить программу')
     action_reset = subparsers.add_parser('reset', help='Перезапустить контроллер')
-    action_diff = subparsers.add_parser('diff', help='Сравнить проект с устройством')
+    action_compare = subparsers.add_parser('compare', help='Сравнить проект с устройством')
+    action_diff = subparsers.add_parser('diff', help='Сравнить проект с устройством и показать отличия')
     action_get = subparsers.add_parser('get', help='Скачать проект из устройством')
     action_put = subparsers.add_parser('put', help='Закачать проект в устройство')
-    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put]:
+    action_check = subparsers.add_parser('check', help='Проверить подключение к устройству')
+    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check]:
         x.add_argument(
             'extra_args',
             nargs=argparse.REMAINDER,
@@ -100,6 +107,7 @@ def main():
         route = routes[args.action][device_type]
         route[0](route[1]+unknown+args.extra_args,port=args.port,host=args.host)
     elif args.action in actions:
+        if args.action == 'check': detect_type(args)
         action = actions[args.action]
         if callable(action):
             actions[args.action]( unknown + args.extra_args )
