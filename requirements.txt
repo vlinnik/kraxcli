@@ -1,0 +1,6 @@
+colorlog
+telnetlib3
+upydev
+pyserial
+mpremote
+argparse

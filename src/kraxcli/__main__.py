@@ -25,6 +25,39 @@ def serials(args):
         ports = list_ports.main()  # Вызываем функцию main из list_ports
         return ports
 
+def vars(args):
+    try:
+        import re
+        ret = subprocess.run([sys.executable,'krax.py','--exports'],capture_output=True,text=True)
+        print(ret.stdout)
+        fake = []
+        
+        for line in str(ret.stdout).split('\n'):
+            line = str(line).strip()
+            match = re.search(r'^([^\.]*) AT',line)
+            if match:
+                fake.append(match.group(1))
+
+        if len(fake)>0:
+            print(f"""
+#Вставить в код и убрать комментарии со следующего блока для autocompleter-а vscode
+#from sys import platform
+#if platform=='vscode':
+#\tfrom collections import namedtuple
+#\tHW = namedtuple('HW',['{str('\',\'').join(fake)}'],defaults=[])
+#\thw = HW()
+""")
+                
+    except Exception as e:
+        print(f'Ошибка при запуске программы: {e}',file=sys.stderr)
+    
+def recheck(args):
+    try:
+        ret = subprocess.run([sys.executable,'krax.py','--exports'],capture_output=True,text=True)
+        return ret.returncode
+    except Exception as e:
+        print(f'Ошибка при запуске программы: {e}',file=sys.stderr)
+    
 def tool_mpremote(args,*_,**kwargs):
     sys.argv = ['mpremote']+args
     from mpremote import __main__
@@ -75,7 +108,8 @@ actions = {
             'put' : (tool_upydev,['dsync','-fg','-i',excluded_files]),
             'get' : (tool_upydev,['dsync','-d','-fg','-i',excluded_files]),
             'check' : (tool_upydev,['cat','project.py']),
-            'config' : (tool_config,[])
+            'config' : (tool_config,[]),
+            'vars' : vars
         }
 
 import os
@@ -90,6 +124,8 @@ def main():
     parser.add_argument("--host",default=None, help='IP/хост устройства')
     parser.add_argument("--password",default='115200', help='Пароль')
     parser.add_argument("--port",default=None, help='COM-порт устройства')
+    parser.add_argument("--dev",default='src', help='Расположение проекта')
+    parser.add_argument("--recheck",action='store_true',help='Проверить проект')
     subparsers = parser.add_subparsers(dest='action',required=True,help='Что нужно сделать')
     action_mpremote = subparsers.add_parser('mpremote')
     action_upydev = subparsers.add_parser('upydev')
@@ -104,7 +140,8 @@ def main():
     action_put = subparsers.add_parser('put', help='Закачать проект в устройство')
     action_check = subparsers.add_parser('check', help='Проверить подключение к устройству')
     action_config= subparsers.add_parser('config', help='Настроить утилиту upydev')
-    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config]:
+    action_vars= subparsers.add_parser('vars', help='Получить переменные программы контроллера')
+    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config,action_vars]:
         x.add_argument(
             'extra_args',
             nargs=argparse.REMAINDER,
@@ -116,6 +153,15 @@ def main():
     args,unknown = parser.parse_known_args()
     # настройка upydev
     ensure_home_env()
+    
+    try:
+        os.chdir(args.dev)
+    except FileNotFoundError:
+        print(f"Каталог проекта контроллера --dev={args.dev} не найден. Использую CWD",file=sys.stderr)
+        
+    if args.recheck and recheck(args)!=0:
+        print(f'Пробный пуск прошивки выдал неожиданный результат.')
+        return
 
     if args.action in routes:
         device_type = detect_type(args)
@@ -127,7 +173,7 @@ def main():
         if callable(action):
             actions[args.action]( unknown + args.extra_args )
         else:
-            action[0]( action[1] + unknown + args.extra_args,port=args.port,host=args.host )
+            action[0]( action[1] + unknown + args.extra_args,port=args.port,host=args.host,password=args.password )
 
 if __name__ == "__main__":
     args = [arg for arg in sys.argv if not arg.startswith("parent_pid=")]
