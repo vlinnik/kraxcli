@@ -1,6 +1,6 @@
 [project]
 name = "kraxcli"
-version = "0.1.0"
+version = "0.2"
 description = "Wrapper for pyserial-ports/mpremote/upydev"
 authors = [
   {name="Василий", email="vlinnik@mail.ru"}
