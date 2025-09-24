@@ -12,10 +12,10 @@ except ImportError:
 def detect_type(args):
     try:
         if args.host is not None:
-            fork_fun(tool_upydev,['config','-t',args.host,'-p',args.password])
+            fork_fun(tool_upydev,['config','-t',args.host,'-p',args.password,'-g'])
             return 'host'
         elif args.port is not None:
-            fork_fun(tool_upydev,['config','-t',args.port,'-p',args.password])
+            fork_fun(tool_upydev,['config','-t',args.port,'-p',args.password,'-g'])
     except Exception as e:
         print(f'Unexpected exception:{e}')
     return 'serial'
@@ -40,12 +40,12 @@ def vars(args):
 
         if len(fake)>0:
             print(f"""
-#Вставить в код и убрать комментарии со следующего блока для autocompleter-а vscode
-#from sys import platform
-#if platform=='vscode':
-#\tfrom collections import namedtuple
-#\tHW = namedtuple('HW',['{str('\',\'').join(fake)}'],defaults=[])
-#\thw = HW()
+#VSCode autocompleter блок.
+from sys import platform
+if platform=='vscode':
+    from collections import namedtuple
+    HW = namedtuple('HW',['{str('\',\'').join(fake)}'],defaults=[])
+    hw = HW()
 """)
                 
     except Exception as e:
