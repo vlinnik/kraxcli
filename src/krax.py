@@ -1,0 +1,1 @@
+print('VAR_CONFIG\nLED AT plc.LED: BOOL;\nEND_VAR')

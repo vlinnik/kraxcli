@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import argparse
+import json
 from serial.tools import list_ports
 from multiprocessing import Process
 
@@ -12,13 +13,15 @@ except ImportError:
 def detect_type(args):
     try:
         if args.host is not None:
-            fork_fun(tool_upydev,['config','-t',args.host,'-p',args.password,'-g'])
             return 'host'
-        elif args.port is not None:
-            fork_fun(tool_upydev,['config','-t',args.port,'-p',args.password,'-g'])
+        elif args.port is not None or args.serial:
+            return 'serial'
+        conf = json.load(open('upydev_.config','r+t'))
+        if 'name' in conf and conf['name']=='usbdev':
+            return 'serial'
     except Exception as e:
         print(f'Unexpected exception:{e}')
-    return 'serial'
+    return 'host'
 
 def serials(args):
         sys.argv = ['pyserial-ports']+args+['-q','(USB|COM|ACM)']
@@ -28,7 +31,7 @@ def serials(args):
 def vars(args):
     try:
         import re
-        ret = subprocess.run([sys.executable,'krax.py','--exports'],capture_output=True,text=True)
+        ret = subprocess.run(['python3','krax.py','--exports'],capture_output=True,text=True)
         print(ret.stdout)
         fake = []
         
@@ -53,7 +56,7 @@ if platform=='vscode':
     
 def recheck(args):
     try:
-        ret = subprocess.run([sys.executable,'krax.py','--exports'],capture_output=True,text=True)
+        ret = subprocess.run(['python3','krax.py','--exports'],capture_output=True,text=True)
         return ret.returncode
     except Exception as e:
         print(f'Ошибка при запуске программы: {e}',file=sys.stderr)
@@ -69,17 +72,28 @@ def fork_fun(fn,args):
     
 def tool_telnet(*_,host:str,**kwargs):
     try:
-        result = subprocess.run(['telnet',host],capture_output=False, text=True, check=True)
+        if host is None:
+            conf = json.load(open('upydev_.config','r+t'))
+            if 'addr' in conf:
+                host = conf['addr']
+        from sys import platform
+        if platform!='linux':
+            result = subprocess.run(['telnet',host],capture_output=False, text=True, check=True)
+        else:
+            tool_upydev(['repl'])
+            return
+            
     except Exception as e:
-        print(f'Ошибка: {e}')
+        print(f'🚫 Ошибка: {e}')
+        return e
     return result.stdout
 
 def tool_config(*_,port=None,host=None,password:str=None,**kwargs):
     try:
         if host is not None:
-            tool_upydev(['config','-t',host,'-p',password])
+            tool_upydev(['config','-t',host,'-p',password,'-@','netdev'])
         elif port is not None:
-            tool_upydev(['config','-t',port,'-p','115200'])
+            tool_upydev(['config','-t',port,'-p','115200','-@','usbdev'])
     except Exception as e:
         print(f'Unexpected exception:{e}')
 
@@ -97,7 +111,7 @@ routes = {
                         'serial': (tool_mpremote, ['reset'])
                     }
             }
-excluded_files = '"*__pycache__*" "*/persist.*" "*/upydev_.*"'
+excluded_files = '"*__pycache__*" "*/persist.*" "*/upydev_.*" "micropython.py" "webrepl_cfg.py"'
 actions = {
             'serials': serials,
             'upydev' : tool_upydev,
@@ -108,6 +122,9 @@ actions = {
             'put' : (tool_upydev,['dsync','-fg','-i',excluded_files]),
             'get' : (tool_upydev,['dsync','-d','-fg','-i',excluded_files]),
             'check' : (tool_upydev,['cat','project.py']),
+            'upload' : (tool_upydev,['-fg','put']),
+            'download' : (tool_upydev,['-fg','get']),
+            'load' : (tool_upydev,['load']),
             'config' : (tool_config,[]),
             'vars' : vars
         }
@@ -126,6 +143,7 @@ def main():
     parser.add_argument("--port",default=None, help='COM-порт устройства')
     parser.add_argument("--dev",default='src', help='Расположение проекта')
     parser.add_argument("--recheck",action='store_true',help='Проверить проект')
+    parser.add_argument("--serial",action='store_true',help='Предпочтительно по USB')
     subparsers = parser.add_subparsers(dest='action',required=True,help='Что нужно сделать')
     action_mpremote = subparsers.add_parser('mpremote')
     action_upydev = subparsers.add_parser('upydev')
@@ -141,7 +159,13 @@ def main():
     action_check = subparsers.add_parser('check', help='Проверить подключение к устройству')
     action_config= subparsers.add_parser('config', help='Настроить утилиту upydev')
     action_vars= subparsers.add_parser('vars', help='Получить переменные программы контроллера')
-    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config,action_vars]:
+    action_download = subparsers.add_parser('download',help='Скачать файл из ПЛК')
+    action_upload = subparsers.add_parser('upload',help='Закачать файл в ПЛК')
+    action_load = subparsers.add_parser('load',help='Закачать файл в ПЛК и выполнить')
+    action_download.add_argument('file',type=str,help='Имя файла')
+    action_upload.add_argument('file',type=str,help='Имя файла')
+    action_load.add_argument('file',type=str,help='Имя файла')
+    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config,action_vars,action_upload,action_download,action_load]:
         x.add_argument(
             'extra_args',
             nargs=argparse.REMAINDER,
@@ -160,7 +184,7 @@ def main():
         print(f"Каталог проекта контроллера --dev={args.dev} не найден. Использую CWD",file=sys.stderr)
         
     if args.recheck and recheck(args)!=0:
-        print(f'Пробный пуск прошивки выдал неожиданный результат.')
+        print(f'В программе есть ошибки.')
         return
 
     if args.action in routes:
@@ -173,7 +197,10 @@ def main():
         if callable(action):
             actions[args.action]( unknown + args.extra_args )
         else:
-            action[0]( action[1] + unknown + args.extra_args,port=args.port,host=args.host,password=args.password )
+            if args.action in ['upload','download','load']:
+                action[0]( action[1] + unknown + args.extra_args+[args.file],port=args.port,host=args.host,password=args.password )
+            else:
+                action[0]( action[1] + unknown + args.extra_args,port=args.port,host=args.host,password=args.password )
 
 if __name__ == "__main__":
     args = [arg for arg in sys.argv if not arg.startswith("parent_pid=")]

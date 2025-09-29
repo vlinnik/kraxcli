@@ -1,4 +1,5 @@
 import sys
+import subprocess
 
 def tool_upydev(args,*_,**kwargs):
     sys.argv = ['upydev']+args

@@ -6,3 +6,4 @@ __pycache__
 debian
 .pybuild
 upydev_.config
+src/kraxcli/_version.py
