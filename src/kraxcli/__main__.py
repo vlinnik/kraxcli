@@ -4,11 +4,11 @@ import argparse
 import json
 from serial.tools import list_ports
 from multiprocessing import Process
-
+    
 try:
-    from .tools import tool_upydev
-except ImportError:
-    from kraxcli.tools import tool_upydev
+    from .tools import tool_upydev,make_layout
+except ImportError as e:
+    from tools import tool_upydev,make_layout
 
 def detect_type(args):
     try:
@@ -126,7 +126,8 @@ actions = {
             'download' : (tool_upydev,['-fg','get']),
             'load' : (tool_upydev,['load']),
             'config' : (tool_config,[]),
-            'vars' : vars
+            'vars' : vars,
+            'layout' : make_layout
         }
 
 import os
@@ -159,13 +160,14 @@ def main():
     action_check = subparsers.add_parser('check', help='Проверить подключение к устройству')
     action_config= subparsers.add_parser('config', help='Настроить утилиту upydev')
     action_vars= subparsers.add_parser('vars', help='Получить переменные программы контроллера')
+    action_layout= subparsers.add_parser('layout', help='Настроить модули ввода-вывода')
     action_download = subparsers.add_parser('download',help='Скачать файл из ПЛК')
     action_upload = subparsers.add_parser('upload',help='Закачать файл в ПЛК')
     action_load = subparsers.add_parser('load',help='Закачать файл в ПЛК и выполнить')
     action_download.add_argument('file',type=str,help='Имя файла')
     action_upload.add_argument('file',type=str,help='Имя файла')
     action_load.add_argument('file',type=str,help='Имя файла')
-    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config,action_vars,action_upload,action_download,action_load]:
+    for x in [action_mpremote,action_upydev,action_serials,action_stop,action_repl,action_run,action_reset,action_diff,action_get,action_put,action_compare,action_check,action_config,action_vars,action_upload,action_download,action_load,action_layout]:
         x.add_argument(
             'extra_args',
             nargs=argparse.REMAINDER,
@@ -181,7 +183,9 @@ def main():
     try:
         os.chdir(args.dev)
     except FileNotFoundError:
-        print(f"Каталог проекта контроллера --dev={args.dev} не найден. Использую CWD",file=sys.stderr)
+        os.makedirs(args.dev,exist_ok=True)
+        os.chdir(args.dev)
+        print(f"Каталог проекта контроллера --dev={args.dev} не найден. Создаю...",file=sys.stderr)
         
     if args.recheck and recheck(args)!=0:
         print(f'В программе есть ошибки.')

@@ -5,7 +5,7 @@ description = "Wrapper for pyserial-ports/mpremote/upydev"
 authors = [
   {name="Василий", email="vlinnik@mail.ru"}
 ]
-dependencies = ["colorlog","telnetlib3","upydev","pyserial","mpremote","argparse"]
+dependencies = ["colorlog","telnetlib3","upydev","upydevice","dill","pyserial","mpremote","argparse","questionary"]
 
 [build-system]
 requires = ["setuptools>=42", "wheel","setuptools-scm"]

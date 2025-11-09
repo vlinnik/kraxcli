@@ -1,13 +1,85 @@
 import sys
-import subprocess
-
+    
 def tool_upydev(args,*_,**kwargs):
-    sys.argv = ['upydev']+args
-    try:
-        if getattr(sys, 'frozen', False):
-            import _upydev
-        else:
-            from . import _upydev
-    except Exception as e:
-        print(f'Ошибка: {e}')
+    if getattr(sys, 'frozen', False):
+        upydev_path = os.path.join(sys._MEIPASS,'bin','upydev')
+        os.environ['PATH'] = os.environ['PATH']+os.pathsep+os.path.join(sys._MEIPASS,'bin')
+    else:
+        import shutil
+        upydev_path = shutil.which("upydev")
+
+    # Чтение и выполнение кода
+    with open(upydev_path, 'r', encoding='utf-8') as f:
+        code = f.read()
+        sys.argv = ['upydev']+args
+        try:
+            exec(code,{'__file__': upydev_path, '__name__': '__main__'})  # Эмулируем __main__
+        except SystemExit:
+            pass
+        except:
+            import traceback; traceback.print_exc();
     return
+
+import questionary
+import json
+import os
+from collections import Counter
+
+def make_layout(*args, **kwargs):
+    MODULES = {
+        "AI-455": 8,
+        "AO-555": 8,
+        "DO-530": 1,
+        "DI-430": 1,  # базовый размер, импульсные добавляются отдельно
+        "DI-430+": 1   # базовый размер, импульсные добавляются отдельно
+    }
+    
+    result = []
+
+    choice = None
+    while True:
+        choice = questionary.select(
+            "Выберите модуль для добавления:",
+            choices=list(MODULES.keys()) + ["[Завершить выбор]"],default=choice
+        ).ask()
+
+        if choice == "[Завершить выбор]":
+            break
+
+        if choice == "DI-430+":
+            choice = "DI-430"
+            pulse_str = questionary.text("Сколько каналов в режиме импульсов?",default="1").ask()
+            try:
+                pulse_count = int(pulse_str)
+                if pulse_count < 0:
+                    print("Количество должно быть неотрицательным.")
+                    continue
+            except ValueError:
+                print("Введите целое число.")
+                continue
+            size = MODULES[choice] + pulse_count
+        else:
+            size = MODULES[choice]
+
+        result.append((choice, size))
+        type_counts = Counter(module for module, _ in result)
+        for module, count in type_counts.items():
+            print(f"- {module} x {count}")
+
+    krax_json = { "slots":[],"devs":[],"init":{ },"node_id":1,"scanTime":100 }
+    for module,size in result:
+        krax_json["slots"].append(size)
+        krax_json["devs"].append(module)
+        
+    with open("krax.json", "w", encoding="utf-8") as f:
+        json.dump(krax_json, f, ensure_ascii=False, indent=2)
+
+    if not os.path.exists("krax.csv"):        
+        with open("krax.csv", "w") as f:
+            f.write("Имя;Тип;Модуль;Канал\n")
+
+    if not os.path.exists("krax.py"):        
+        with open("krax.py", "w") as f:
+            f.writelines(["from pyplc.platform import plc,plc as hw\n","plc.run(instances=(),ctx=globals())"])
+        
+    return result

@@ -2,18 +2,11 @@
 from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import collect_all
 
-upydev_dat,upydev_bin,upydev_imports = collect_all("upydev")
-upydevice_dat,upydevice_bin,upydevice_imports = collect_all("upydevice")
-mpremote_dat,mpremote_bin,mpremote_imports = collect_all("mpremote")
-serial_dat,serial_bin,serial_imports = collect_all("serial")
-
 a = Analysis(
     ['src/kraxcli/__main__.py'],
     pathex=[],
-    binaries=serial_bin+mpremote_bin+upydev_bin+upydevice_bin+[('src/kraxcli/_upydev.py','.')],
-    datas=serial_dat+mpremote_dat+upydev_dat+upydevice_dat,
-    hiddenimports=serial_imports+mpremote_imports+upydev_imports+upydevice_imports+['packaging','packaging.version','argcomplete'],
-    hookspath=[],
+    hiddenimports=['upydev.shell','upydevice','requests','argcomplete','packaging.version','braceexpand','mpremote'],
+    hookspath=['hooks'],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],

@@ -15,6 +15,7 @@
 - mpremote
 - upydev
 - pyinstaller
+- questionary
 
 затем активировать venv и там
 ```bash

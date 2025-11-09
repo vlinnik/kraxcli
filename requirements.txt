@@ -4,3 +4,4 @@ upydev
 pyserial
 mpremote
 argparse
+questionary
