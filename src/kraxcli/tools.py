@@ -7,7 +7,9 @@ def tool_upydev(args,*_,**kwargs):
     else:
         import shutil
         import site
-        os.environ['PATH'] = os.environ['PATH']+os.pathsep+os.pathsep.join([os.path.join(p,'bin') for p in site.getsitepackages()])
+        import sysconfig
+        os.environ['PATH'] = os.environ.get('PATH','.')+os.pathsep+os.pathsep.join([os.path.join(p,'bin') for p in site.getsitepackages()])+os.pathsep+sysconfig.get_paths()['scripts']
+        
         upydev_path = shutil.which("upydev")
 
     # Чтение и выполнение кода
