@@ -44,8 +44,8 @@ def vars(args):
         if len(fake)>0:
             print(f"""
 #VSCode autocompleter блок.
-from sys import platform
-if platform=='vscode':
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
     from collections import namedtuple
     HW = namedtuple('HW',['{str('\',\'').join(fake)}'],defaults=[])
     hw = HW()

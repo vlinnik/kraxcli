@@ -70,20 +70,25 @@ def make_layout(*args, **kwargs):
         for module, count in type_counts.items():
             print(f"- {module} x {count}")
 
-    krax_json = { "slots":[],"devs":[],"init":{ },"node_id":1,"scanTime":100 }
+    krax_json = { "slots":[],"devs":[],"init":{ },"devices": [ {"driver":"krax","name":"hw"},{"driver":"posto","name":"posto"} ],"node_id":1,"scanTime":100 }
     for module,size in result:
         krax_json["slots"].append(size)
         krax_json["devs"].append(module)
-        
-    with open("krax.json", "w", encoding="utf-8") as f:
+    
+    os.mkdir('data')
+    with open("data/krax.json", "w", encoding="utf-8") as f:
         json.dump(krax_json, f, ensure_ascii=False, indent=2)
 
-    if not os.path.exists("krax.csv"):        
-        with open("krax.csv", "w") as f:
-            f.write("Имя;Тип;Модуль;Канал\n")
+    if not os.path.exists("data/krax.csv") and not os.path.exists('krax.csv'):
+        with open("data/krax.csv", "w") as f:
+            f.write("Имя;Тип;Модуль;Канал;Описание\n")
 
     if not os.path.exists("krax.py"):        
         with open("krax.py", "w") as f:
-            f.writelines(["from pyplc.platform import plc,plc as hw\n","plc.run(instances=(),ctx=globals())"])
+            f.writelines(["from pyplc.platform import plc, hw\n","plc.run(instances=(),ctx=globals())"])
+
+    if not os.path.exists("project.py"):        
+        with open("project.py", "w") as f:
+            f.writelines(["name='БезИмени'\n","version='v0.1'"])
         
     return result
