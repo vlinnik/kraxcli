@@ -35,3 +35,8 @@ dh_make -n --python -p kraxcli_0.1 -e vlinnik@mail.ru
 ```
 debuild -uc -us
 ```
+
+Генератор debian/changelog c помощью
+```
+EMAIL=vlinnik@mail.ru gbp dch --debian-branch=main --release
+```
