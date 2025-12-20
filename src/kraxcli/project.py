@@ -8,7 +8,7 @@ import yaml
 import os
 from collections import Counter
 
-app = typer.Typer(help='Работа с проектом',rich_help_panel='Проект')
+app = typer.Typer(help='Работа с проектом (vars/validate/layout/)',rich_help_panel='Проект')
 
 @app.command(help='Проверить проект на синтаксис',rich_help_panel='Проект')
 def validate():
@@ -82,7 +82,7 @@ if TYPE_CHECKING:
     except Exception as e:
         typer.secho(f'Случилось непредвиденное, {e}',bold=True,err=True)
 
-@app.command(help='Создать настройку модулей ввода-вывода (krax.json+krax.csv)')
+@app.command(help='Создать настройку модулей ввода-вывода (krax.json+krax.csv)',rich_help_panel='Проект')
 def layout(dir: str=typer.Option('data',help='Расположение создаваемых файлов')):
     MODULES = {
         "AI-455": 8,
@@ -144,7 +144,7 @@ def layout(dir: str=typer.Option('data',help='Расположение созд�
     return result
 
 @app.command(help='Создать минимальный проект (project.py+krax.py)')
-def project(name: str=typer.Option(None,help='Название проекта'),
+def init(name: str=typer.Option(None,help='Название проекта'),
             version: str=typer.Option(None,help='Версия проекта'),
             force: bool=typer.Option(False,help='Затереть существующие файлы')):
     name = name or questionary.text('Как назвать проект').ask()

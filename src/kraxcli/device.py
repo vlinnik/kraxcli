@@ -1,9 +1,12 @@
 import typer
 import sys
 import os
+import kraxcli.connect as connect
 from kraxcli import detect_type,upydev, mpremote,telnet
 
-app = typer.Typer(chain=True,rich_help_panel='Контроллер')
+app = typer.Typer(chain=True,rich_help_panel='Контроллер',help='Работа с контроллером (run/stop/reset/connect и тп)')
+
+app.add_typer(connect.app,name='connect')
 
 def __check_upydev():
     if not os.path.exists('upydev_.config'):
@@ -14,8 +17,7 @@ def __check_upydev():
 def serials():
     from serial.tools import list_ports
     sys.argv = ['pyserial-ports','-q','(USB|COM|ACM)']
-    ports = list_ports.main()  # Вызываем функцию main из list_ports
-    return ports
+    list_ports.main()  # Вызываем функцию main из list_ports
 
 @app.command(help='Перезапуск контроллера',rich_help_panel='Контроллер')
 def reset():
@@ -64,9 +66,20 @@ def shl():
     stop(silent=True)
     upydev('shl')
 
-@app.command(help='Проверить содержимое project.py',rich_help_panel='Контроллер')
-def check():
+@app.command(help='Проверить программу в контроллере',rich_help_panel='Контроллер')
+def info():
     __check_upydev()
-    typer.echo('Вывод содержимого project.py')
     stop(silent=True)
+    typer.secho('Информация о контроллере:',bold=True)
+    upydev('info')  
+    typer.secho('Информация о проекте в контроллере:',bold=True)
     upydev('cat','project.py')  
+
+@app.command(help='Управление часами RTC',rich_help_panel='Контроллер')
+def datetime(set: bool = typer.Option(False,help='Синхронизировать время')):
+    __check_upydev()
+    
+    if set:
+        upydev('set','rtc')
+    else:
+        upydev('datetime')

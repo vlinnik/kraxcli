@@ -2,7 +2,7 @@ import typer
 import os
 from kraxcli import upydev,detect_type,mpremote
 
-app = typer.Typer(help='Работа с файлами',rich_help_panel='Файлы')
+app = typer.Typer(chain=True,help='Работа с файлами (put/get/ls/rm/tree/diff/compare)',rich_help_panel='Файлы')
 excluded_files = '"*__pycache__*" "*/persist.*" "*/upydev_.*" "micropython.py" "webrepl_cfg.py" "*/.git/*"'
 
 def __check_upydev():
