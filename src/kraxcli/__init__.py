@@ -56,7 +56,7 @@ def upydev(*args: str):
             pass
         except Exception as e:
             typer.secho(f'Случилось страшное, {e}',bold=True,err=True)
-            import traceback; traceback.print_exc();
+            # import traceback; traceback.print_exc();
         finally:    #почистим следы от использования upydev
             unload = [ x for x in sys.modules if 'upydev' in x ]
             for m in unload:

@@ -5,11 +5,11 @@ from PyInstaller.utils.hooks import collect_all
 a = Analysis(
     ['src/kraxcli/__main__.py'],
     pathex=[],
-    hiddenimports=['upydev.shell','upydevice','requests','argcomplete','packaging.version','braceexpand','mpremote'],
+    hiddenimports=['upydev.shell','upydevice','requests','typer','packaging.version','braceexpand','mpremote','tkinter','argcomplete'],
     hookspath=['hooks'],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['numpy'],
     noarchive=False,
     optimize=0,
 )

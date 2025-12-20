@@ -5,7 +5,7 @@ description = "Wrapper for pyserial-ports/mpremote/upydev"
 authors = [
   {name="Василий", email="vlinnik@mail.ru"}
 ]
-dependencies = ["colorlog","telnetlib3","upydev","upydevice","dill","pyserial","mpremote","argparse","questionary"]
+dependencies = ["upydev","upydevice","pyserial","mpremote","questionary","typer"]
 
 [build-system]
 requires = ["setuptools>=42", "wheel","setuptools-scm"]
@@ -16,4 +16,4 @@ version_scheme = "post-release"
 write_to = "src/kraxcli/_version.py"
 
 [project.scripts]
-kraxcli = "kraxcli.__main__:main"
+kraxcli = "kraxcli.__main__:cli"

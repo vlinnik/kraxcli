@@ -1,5 +1,4 @@
-colorlog
-telnetlib3
+loguru
 upydev
 pyserial
 mpremote

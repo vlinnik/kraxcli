@@ -1,10 +1,10 @@
 import typer
 import os
-from cli import upydev
+from kraxcli import upydev
 
-app = typer.Typer(help='Настройка параметров подключения')
+app = typer.Typer(help='Настройка параметров подключения',rich_help_panel='Контроллер')
 # Подкоманда connect
-@app.callback(invoke_without_command=True)
+@app.callback(invoke_without_command=True,rich_help_panel='Контроллер')
 def connect(
     host: str = typer.Option(None, "-h", "--host", help="Хост для подключения"),
     password: str = typer.Option('115200', "--password", help="Пароль (хранится явно)"),

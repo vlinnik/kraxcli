@@ -16,11 +16,12 @@
 - upydev
 - pyinstaller
 - questionary
+- typer
 
 затем активировать venv и там
 ```bash
 . .venv/bin/activate
-pyinstaller krax_cli.spec --noconfirm
+pyinstaller kraxcli.spec --noconfirm
 deactivate
 ```
 
