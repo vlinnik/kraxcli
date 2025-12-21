@@ -29,28 +29,41 @@ deactivate
 
 Если нет каталога debian
 ```
-dh_make -n --python -p kraxcli_0.6 -e vlinnik@mail.ru 
+    dh_make -n --python -p kraxcli_0.6 -e vlinnik@mail.ru 
 ```
 
 Убрать из debian/control генерацию doc и добавить  build-depends от dh-virtualenv
 debian/rules изменить на dh $@ --with python-virtualenv (или надо будет ставить upydev 
-postinst) и добавить (что-то там с compat=12)
+postinst) 
+
+добавить в debian/rules (что-то там с compat=12)
 ```
-override_dh_auto_configure:
-    # ничего не делаем, шаг не нужен
+    override_dh_auto_configure:
+        # ничего не делаем, шаг не нужен
 ```
 
 создать файл debian/kraxcli.install
 ```
-kraxcli usr/bin
+    kraxcli usr/bin
 ```
 
 Сборка deb
 ```
-debuild -uc -us
+    debuild -uc -us
+```
+
+Если не делать dh_virtualenv, то в postinst
+```
+    pip install --no-deps --break-system-packages upydevice bleak-sigspec jupyter-micropython-upydevice upydev   
+```
+в postrm почистисть установленные
+```
+    remove|abort-install)
+        pip uninstall upydevice bleak-sigspec jupyter-micropython-upydevice upydev -y --break-system-packages
+    ;;
 ```
 
 Генератор debian/changelog c помощью
 ```
-EMAIL=vlinnik@mail.ru gbp dch --debian-branch=main --release
+    EMAIL=vlinnik@mail.ru gbp dch --debian-branch=main --release
 ```
