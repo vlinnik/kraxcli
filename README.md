@@ -29,9 +29,23 @@ deactivate
 
 Если нет каталога debian
 ```
-dh_make -n --python -p kraxcli_0.1 -e vlinnik@mail.ru 
+dh_make -n --python -p kraxcli_0.6 -e vlinnik@mail.ru 
 ```
-Убрать из debian/control генерацию doc 
+
+Убрать из debian/control генерацию doc и добавить  build-depends от dh-virtualenv
+debian/rules изменить на dh $@ --with python-virtualenv (или надо будет ставить upydev 
+postinst) и добавить (что-то там с compat=12)
+```
+override_dh_auto_configure:
+    # ничего не делаем, шаг не нужен
+```
+
+создать файл debian/kraxcli.install
+```
+kraxcli usr/bin
+```
+
+Сборка deb
 ```
 debuild -uc -us
 ```
