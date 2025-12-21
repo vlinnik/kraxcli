@@ -12,7 +12,7 @@ from kraxcli import upydev, mpremote
 app = typer.Typer(chain=True)
 
 # Глобальный флаг
-@app.callback(invoke_without_command=True)
+@app.callback(invoke_without_command=True,no_args_is_help=True)
 def main(
     w: str = typer.Option(
         None,
@@ -35,11 +35,11 @@ def main(
             sys.exit(0)
             
 @app.command('upydev',help='Запуск upydev (USB/Ethernet подключение)',rich_help_panel='Инструменты')
-def _upydev(args: List[str] = typer.Argument([])):
+def _upydev(args: List[str] = typer.Argument(None)):
     upydev(*args)
 
 @app.command('mpremote',help='Запуск mpremote (USB подключение)',rich_help_panel='Инструменты')
-def _mpremote(args: List[str] = typer.Argument([])):
+def _mpremote(args: List[str] = typer.Argument(None)):
     mpremote(*args)
 
 def __check_upydev():
@@ -51,10 +51,11 @@ def cli():
     if 'HOME' not in os.environ:
         current_dir = os.getcwd()
         os.environ['HOME'] = current_dir
+    os.environ['PATH'] = os.environ.get('PATH','')
     
-    app.add_typer(files.app,name='fs')
     app.add_typer(device.app,name='dev')
     app.add_typer(project.app,name='project')            
+    app.add_typer(files.app,name='fs')
     app()
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ import yaml
 import os
 from collections import Counter
 
-app = typer.Typer(help='Работа с проектом (vars/validate/layout/)',rich_help_panel='Проект')
+app = typer.Typer(chain=True,help='Работа с проектом (vars/validate/layout/)',rich_help_panel='Проект')
 
 @app.command(help='Проверить проект на синтаксис',rich_help_panel='Проект')
 def validate():
@@ -143,7 +143,7 @@ def layout(dir: str=typer.Option('data',help='Расположение созд�
         
     return result
 
-@app.command(help='Создать минимальный проект (project.py+krax.py)')
+@app.command(help='Создать минимальный проект (project.py+krax.py)',rich_help_panel='Проект')
 def init(name: str=typer.Option(None,help='Название проекта'),
             version: str=typer.Option(None,help='Версия проекта'),
             force: bool=typer.Option(False,help='Затереть существующие файлы')):

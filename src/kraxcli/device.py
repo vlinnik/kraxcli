@@ -11,7 +11,7 @@ app.add_typer(connect.app,name='connect')
 def __check_upydev():
     if not os.path.exists('upydev_.config'):
         typer.echo('Необходимо произвести настройку (команда connect)',err=True)
-        exit(0)
+        sys.exit(0)
 
 @app.command(help='Показать список доступных последовательных портов',rich_help_panel='Контроллер',)
 def serials():
@@ -39,6 +39,7 @@ def stop(silent:bool = typer.Option(False,help='Работать по тихом
 def run(script: str = typer.Argument('krax')):
     __check_upydev()
     typer.echo(f'Запуск в контроллере файла {script}...')
+    stop(silent=True)
     upydev('run',script)
 
 @app.command(help='Подключиться к REPL',rich_help_panel='Контроллер')
