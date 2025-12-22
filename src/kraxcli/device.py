@@ -30,7 +30,7 @@ def reset():
 @app.command(help='Остановить выполнение программы',rich_help_panel='Контроллер')
 def stop(silent:bool = typer.Option(False,help='Работать по тихому')):
     if silent==False: typer.echo('Останов программы в контроллере...')
-    if detect_type()=='serial' and silent==False:
+    if detect_type()=='serial':
         mpremote('soft-reset')
     else:
         upydev('kbi')
@@ -68,13 +68,15 @@ def shell():
     upydev('shl')
 
 @app.command(help='Проверить программу в контроллере',rich_help_panel='Контроллер')
-def info():
+def info(project: bool=typer.Option(False,help='Информация о проекте')):
     __check_upydev()
     stop(silent=True)
-    typer.secho('Информация о контроллере:',bold=True)
-    upydev('info')  
-    typer.secho('Информация о проекте в контроллере:',bold=True)
-    upydev('cat','project.py')  
+    if project:
+        typer.secho('Информация о проекте в контроллере:',bold=True)
+        upydev('cat','project.py')  
+    else:
+        typer.secho('Информация о контроллере:',bold=True)
+        upydev('info')
 
 @app.command(help='Управление часами RTC',rich_help_panel='Контроллер')
 def datetime(set: bool = typer.Option(False,help='Синхронизировать время')):
