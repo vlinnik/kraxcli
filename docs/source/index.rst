@@ -23,10 +23,3 @@
    install
    usage
    commands
-
-Указатели и таблицы
-===================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

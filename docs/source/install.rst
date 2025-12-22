@@ -3,6 +3,12 @@
 
 Способы установки
 
+.. attention::
+
+    Для Windows рекомендуется использовать бинарный пакет, так как установка из исходников 
+    требует наличия Visual Studio Community Edition с компонентами для разработки на C++.
+    Также требует навыков работы с командной строкой и виртуальными окружениями Python.
+
 PyPI
 ----
 
@@ -54,7 +60,18 @@ Windows
     source .venv/bin/activate      # Linux
     pip install -r requirements.txt
     pip install pyinstaller
+
+.. code-block:: bash
+
     pyinstaller kraxcli.spec
+
+.. attention::
+
+    для Windows нужно изменить структуру папок в .venv/Lib/site-packages 
+    на Lib/python<версия>/site-packages, иначе pyinstaller не сможет найти зависимости upydev.
+    <версия> - это основная и второстепенная версия Python, например 3.8. Можно узнать запустив 
+    pyinstaller и посмотрев на ошибки.
+
 
 После этого в папке dist/ будет находиться исполняемый файл kraxcli.
 
