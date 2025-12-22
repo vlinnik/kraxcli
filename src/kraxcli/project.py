@@ -124,7 +124,7 @@ def layout(dir: str=typer.Option('data',help='Расположение созд�
         for module, count in type_counts.items():
             print(f"- {module} x {count}")
 
-    krax_json = { "slots":[],"devs":[],"init":{ "host":"krax","iface":0 },"devices": [ {"driver":"krax","name":"hw"},{"driver":"posto","name":"posto"} ],"node_id":1,"scanTime":100 }
+    krax_json = { "slots":[],"devs":[],"init":{ "iface":0 },"devices": [ {"driver":"krax","name":"hw"},{"driver":"posto","name":"posto"} ],"node_id":1,"scanTime":100 }
     for module,size in result:
         krax_json["slots"].append(size)
         krax_json["devs"].append(module)
@@ -138,7 +138,7 @@ def layout(dir: str=typer.Option('data',help='Расположение созд�
         yaml.safe_dump(krax_json, f)
 
     if not os.path.exists(f"{dir}/krax.csv") and not os.path.exists('krax.csv'):
-        with open("{dir}/krax.csv", "w") as f:
+        with open(f"{dir}/krax.csv", "w") as f:
             f.write("Имя;Тип;Модуль;Канал;Описание\n")
         
     return result

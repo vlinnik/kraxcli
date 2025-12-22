@@ -59,7 +59,7 @@ def load(file: str=typer.Argument(...,help='Что отправить')):
     upydev('load',file)
 
 @app.command(help='Режим командной строки',rich_help_panel='Контроллер')
-def shl():
+def shell():
     if sys.platform!='linux':
         typer.secho('Жаль cmd/powershell-подобная среда доступна только в linux',bold=True)
         return
