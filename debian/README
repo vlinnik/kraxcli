@@ -1,0 +1,6 @@
+The Debian Package kraxcli
+----------------------------
+
+kraxcli tool: wrapper for upydev/pyserial/mpremote
+
+ -- vlinnik <vlinnik@mail.ru>  Sun, 14 Sep 2025 07:13:45 +0300

@@ -3,7 +3,10 @@ build
 __pycache__
 *.egg-info
 .venv
-debian
+debian/kraxcli
+debian/.debhelper
+debian/debhelper-build-stamp
+debian/kraxcli.substvars
 .pybuild
 upydev_.config
 src/kraxcli/_version.py

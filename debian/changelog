@@ -1,0 +1,35 @@
+kraxcli (0.6) UNRELEASED; urgency=medium
+
+  [ Linnik V.V ]
+  * Группы комманд fs/dev/project через add_typer
+  * Сборка через debuild/python/pyinstaller 0.4
+  * Как заполнять changelog
+
+ -- vlinnik <vlinnik@mail.ru>  Sun, 21 Dec 2025 07:40:39 +0300
+
+kraxcli (0.4ubuntu1) noble; urgency=medium
+
+  [ Linnik V.V ]
+  * Сборка через debuild/python/pyinstaller 0.4
+
+ -- vlinnik <vlinnik@mail.ru>  Sat, 20 Dec 2025 12:30:00 +0300
+
+kraxcli (0.4) noble; urgency=medium
+
+  [ Linnik V.V ]
+  * Первый вариант
+  * Под Windows тоже вроде собирается, но нет подключенного ttyUSB0 чтобы проверить
+  * Предварительный вариант
+  * Незначительные изменения
+  * Небольшие изменния для совместимости с Windows
+  * Дополнительные функции
+  * Небольшие улучшения
+  * Назначил версию 0.2
+  * Новые функции
+  * Изолирование от установленного upydev для pyinstaller
+  * debian пакет включает в себя установленный upydev
+  * Установка через deb создает /opt/venv
+  * Изменение генерации (layout)
+  * Вариант на typer
+
+ -- vlinnik <vlinnik@mail.ru>  Fri, 19 Dec 2025 21:19:07 +0300

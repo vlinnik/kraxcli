@@ -1,0 +1,2 @@
+dist/*.whl  opt/venvs/kraxcli/wheels/
+kraxcli usr/bin/

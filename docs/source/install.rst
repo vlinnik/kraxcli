@@ -1,13 +1,39 @@
 Установка
 =========
 
-Способы установки
+Способы установки: PyPI, deb-пакет, бинарный (PyInstaller), из исходников
+
+Требования
+----------
+
+::
+
+    Python 3.8+; см. pyproject.toml для деталей.
+    Платформы: Linux, Windows, macOS.
+
+Windows
+~~~~~~~
+- Сборка из исходников: Visual Studio Community Edition с компонентами для разработки на C++
 
 .. attention::
 
-    Для Windows рекомендуется использовать бинарный пакет, так как установка из исходников 
-    требует наличия Visual Studio Community Edition с компонентами для разработки на C++.
-    Также требует навыков работы с командной строкой и виртуальными окружениями Python.
+    Рекомендуется использовать бинарный пакет
+
+Linux
+~~~~~
+
+- Права на доступ к последовательным портам (обычно это группа dialout на Linux).
+- Установленный python3-tk
+
+.. code-block:: bash
+
+    sudo apt install python3-tk
+
+- Для сборки из исходников необходим gcc: 
+
+.. code-block:: bash
+
+    sudo apt install gcc
 
 PyPI
 ----
@@ -17,6 +43,10 @@ PyPI
 .. code-block:: bash
 
     pip install kraxcli-<версия>.whl
+
+.. note:: 
+
+    Для Linux необходимы python3-tk, gcc (Debian: sudo apt install python3-tk gcc)
 
 
 Из исходников
@@ -47,7 +77,7 @@ Linux
 Windows
 ~~~~~~~
 
-Скопировать kraxcli.exe в папку из PATH, например C:\Windows\System32
+Скопировать kraxcli.exe в папку из PATH, например C:\\Windows\\System32
 
 Создание бинарного пакета из исходников
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +90,10 @@ Windows
     source .venv/bin/activate      # Linux
     pip install -r requirements.txt
     pip install pyinstaller
+
+.. note:: 
+
+    Для Linux необходимо установить пакет python3-tk, gcc (Debian: sudo apt install python3-tk gcc)
 
 .. code-block:: bash
 
@@ -85,12 +119,3 @@ Windows
         site-packages/upydev/wsio.py:785: SyntaxWarning: invalid escape sequence '\.'
         
     Можно проигнорировать, или исправить в исходниках upydev, заменив на '\\\\.'
-
-Требования
-----------
-Python 3.8+; см. pyproject.toml для деталей.
-Платформы: Linux, Windows, macOS.
-Для сборки бинарного пакета в Windows требуется установка Visual Studio Community Edition 
-с компонентами для разработки на C++ (не самое простое требование, к сожалению).
-
-Пользователь должен иметь права на доступ к последовательным портам (обычно это группа dialout на Linux).

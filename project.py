@@ -1,3 +1,0 @@
-
-name='None'
-version='None'

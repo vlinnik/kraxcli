@@ -1,2 +1,2 @@
 #!/bin/sh
-/opt/venvs/kraxcli/bin/kraxcli $*
+exec /opt/venvs/kraxcli/bin/kraxcli "$@"

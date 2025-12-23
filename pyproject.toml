@@ -15,5 +15,8 @@ build-backend = "setuptools.build_meta"
 version_scheme = "post-release"
 write_to = "src/kraxcli/_version.py"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [project.scripts]
 kraxcli = "kraxcli.__main__:cli"
